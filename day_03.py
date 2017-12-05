@@ -1,6 +1,8 @@
 """Solution to day 3 part 1 and 2"""
 import math
 
+# Part I
+
 def dimension_of_bounding_square(number):
     """Find the smallest binding square, e.g.
     1x1, 3x3, 5x5
@@ -115,7 +117,7 @@ def move(termination_number):
         location += heading
 
         # Populate the current space
-        number += 1 
+        number += 1
     return location
 
 # Part 1 test cases
@@ -127,11 +129,78 @@ assert manhatten_distance(move(1024)) == 31
 # Solution to part 1
 print("Solution to part 1: {}".format(manhatten_distance(move(347991))))
 
+# Part II
 
+def find_neighbors(location):
+    """Return list of all adjacent locations."""
+    neighbors = []
+    for x_translation in range(-1, 2):
+        for y_translation in range(-1, 2):
+            if x_translation == 0 and y_translation == 0:
+                continue
+            translation = complex(x_translation, y_translation)
+            neighbors.append(location + translation)
+    return neighbors
 
+assert find_neighbors(complex(0)) == [
+    complex(-1, -1),
+    complex(-1),
+    complex(-1, 1),
+    complex(0, -1),
+    complex(0, 1),
+    complex(1, -1),
+    complex(1),
+    complex(1, 1)
+]
 
+def part_two_strategy(history, location):
+    """Calculate the value of the current location
+    given the history of values for previous locations"""
+    values = [history.get(neighbor, 0) for neighbor in find_neighbors(location)]
+    return sum(values)
 
+assert part_two_strategy({complex(0): 1}, complex(1, 0)) == 1
+assert part_two_strategy(
+    {
+        complex(0): 1,
+        complex(1): 1,
+        complex(1, 1): 2
+    },
+    complex(0, 1)) == 4
 
+def solve_part_two(termination_threshold, strategy):
+    """Keep spiralling around in concentric squares until the value
+    of the current location is greater than the specifed termination
+    threshold."""
+    location, heading = 0, E # Start at the origin facing east
+    edge_length = 1 # Start on square with edge length 1
+    bottom_right = 0
+    history = {location: 1}
 
+    while history[location] <= termination_threshold:
 
+        print("baz")
 
+        # deal with heading:
+        # if off the current square jump to next and turn left
+        if off_square(location, edge_length):
+            heading *= N
+            edge_length += 2
+            bottom_right = find_bottom_right(edge_length)
+        # if we are at any vertex except the bottom right
+        # turn left to stay on the perimeter of the square
+        if at_end_of_edge(location, edge_length) and location != bottom_right:
+            heading *= N
+
+        # Move forward 1 using the current heading
+        location += heading
+        print(location)
+
+        # Calculate value of current location on the path
+        history[location] = strategy(history, location)
+
+    return history[location]
+
+assert solve_part_two(1, part_two_strategy) == 2
+assert solve_part_two(133, part_two_strategy) == 142
+print("Solution to part 2: {}".format(solve_part_two(347991, part_two_strategy)))
