@@ -44,14 +44,6 @@ def checksum(numbers):
     """Form checksum from list of numbers."""
     return numbers[0] * numbers[1]
 
-# Part 1 test cases
-assert tie_knots([0, 1, 2, 3, 4], [3, 4, 1, 5]) == [3, 4, 2, 1, 0]
-
-# Solution to part 1
-print("Solution to part 1: {}".format(
-    checksum(
-        tie_knots(list(range(256)), [int(number) for number in load(10).read().split(',')]))))
-
 def convert_to_ascii(lengths):
     """Convert from numbers to associated ascii values."""
     return [ord(length) for length in lengths]
@@ -88,12 +80,29 @@ def form_hex(dense_hash):
     """Hexadecimal encoding from dense hash."""
     return ''.join([format(number, '02x') for number in dense_hash])
 
-def hex_checksum():
-    """Wrapper for part 2."""
-    numbers = parse_numbers(load(10).read())
-    knots = tie_knots_multiple_rounds(list(range(256)), numbers, 64)
+def solve(value):
+    """Wrapper for part 2"""
+    parsed_value = parse_numbers(value)
+    knots = tie_knots_multiple_rounds(list(range(256)), parsed_value, 64)
     dense_hash = form_dense_hash(knots)
     hex_encoding = form_hex(dense_hash)
     return hex_encoding
 
-print('Solution to part 2: {}'.format(hex_checksum()))
+def main():
+    # Part 1 test cases
+    assert tie_knots([0, 1, 2, 3, 4], [3, 4, 1, 5]) == [3, 4, 2, 1, 0]
+
+    # Solution to part 1
+    print("Solution to part 1: {}".format(
+        checksum(
+            tie_knots(list(range(256)), [int(number) for number in load(10).read().split(',')]))))
+
+    print('Solution to part 2: {}'.format(
+        solve(
+            load(10).read())))
+
+if __name__ == "__main__":
+    main()
+
+
+
